@@ -1,0 +1,11 @@
+{
+  "name": "Sistem Informasi Kependudukan Desa Bantarsari",
+  "short_name": "SIP Bantarsari",
+  "description": "Aplikasi pengelolaan data kependudukan Desa Bantarsari",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "categories": ["government", "productivity"]
+}
