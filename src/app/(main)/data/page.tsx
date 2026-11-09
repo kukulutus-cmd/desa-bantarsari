@@ -2,6 +2,7 @@
 
 import { useApp } from '@/lib/context';
 import { Database, RefreshCw, ShieldAlert } from 'lucide-react';
+import { PopulationImport } from '@/components/PopulationImport';
 
 export default function DataPage() {
   const { currentProfile, stats, isLoading, isSupabaseConnected, isSyncingWithSupabase, lastSyncedAt, refreshFromSupabase } = useApp();
@@ -44,9 +45,10 @@ export default function DataPage() {
           Muat ulang ringkasan
         </button>
         <p className="mt-5 rounded-xl border border-sky-100 bg-sky-50 p-4 text-xs leading-relaxed text-slate-700">
-          Impor, ekspor, dan pemulihan cadangan belum diaktifkan. Fitur tersebut perlu alur validasi dan pencatatan akses sebelum data pribadi dapat dipindahkan.
+          Data uji fiktif tidak boleh dimasukkan ke basis data produksi. Impor akan memeriksa format dan duplikasi sebelum menyimpan.
         </p>
       </section>
+      <PopulationImport />
     </main>
   );
 }

@@ -13,7 +13,7 @@ const complaintMessage = encodeURIComponent(
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -23,14 +23,25 @@ export default function LoginPage() {
     setError('');
     setBusy(true);
     try {
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (signInError) {
-        setError('Email atau kata sandi tidak cocok, atau akun belum diaktifkan.');
-        return;
+      const identifier = username.trim();
+      if (identifier.includes('@')) {
+        const supabase = createClient();
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: identifier, password });
+        if (signInError) {
+          setError('Username atau kata sandi tidak cocok, atau akun belum diaktifkan.');
+          return;
+        }
+      } else {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: identifier, password }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          setError(result.error || 'Username atau kata sandi tidak cocok, atau akun belum diaktifkan.');
+          return;
+        }
       }
       router.replace('/dashboard');
       router.refresh();
@@ -54,8 +65,8 @@ export default function LoginPage() {
       />
 
       <div className="relative z-10 flex min-h-screen flex-col px-5 py-6 sm:px-10 lg:px-16">
-        <div className="mx-auto flex w-full max-w-7xl flex-1 items-center">
-          <div className="w-full max-w-md py-12 sm:py-8">
+        <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10">
+          <div className="order-2 w-full max-w-md py-4 sm:py-8 lg:order-1">
             <div className="mb-5 text-white">
               <Image
                 src="/logo-kabupaten-bekasi.png"
@@ -79,16 +90,17 @@ export default function LoginPage() {
             <section className="w-full border border-white/80 bg-white p-5 shadow-2xl sm:p-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-bold text-slate-800">
-                    Email petugas
+                  <label htmlFor="username" className="mb-1.5 block text-sm font-bold text-slate-800">
+                    Username petugas
                   </label>
                   <input
-                    id="email"
-                    type="email"
+                    id="username"
+                    type="text"
                     autoComplete="username"
                     required
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    placeholder="Masukkan username"
                     className="w-full border border-slate-400 bg-slate-50 px-3.5 py-2.5 outline-none focus:border-sky-700 focus:ring-2 focus:ring-sky-200"
                   />
                 </div>
@@ -123,10 +135,24 @@ export default function LoginPage() {
               </form>
 
               <p className="mt-4 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-600">
-                Akun dibuat dan diaktifkan oleh administrator. Pendaftaran mandiri tidak tersedia.
+                Masuk menggunakan username dan kata sandi yang diberikan administrator desa.
               </p>
             </section>
           </div>
+          <figure className="order-1 flex w-full items-center gap-4 border border-white/60 bg-slate-950/40 p-3 text-white shadow-xl backdrop-blur-sm lg:order-2 lg:block lg:max-w-[320px] lg:bg-white/95 lg:p-4 lg:text-slate-900">
+            <Image
+              src="/foto-kepala-desa.png"
+              alt="Foto Kepala Desa Bantarsari"
+              width={720}
+              height={765}
+              priority
+              className="h-24 w-24 shrink-0 border border-white/60 object-cover object-top lg:h-[360px] lg:w-full lg:border-slate-200"
+            />
+            <figcaption className="min-w-0 text-left lg:pt-3 lg:text-center">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/75 lg:text-sky-800">Kepala Desa</p>
+              <p className="mt-1 text-sm font-extrabold leading-snug text-white lg:text-slate-900">{villageName}</p>
+            </figcaption>
+          </figure>
         </div>
 
         <footer className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-3 border-t border-white/40 pt-3 text-white sm:flex-row sm:items-center">

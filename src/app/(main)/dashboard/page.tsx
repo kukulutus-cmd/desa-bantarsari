@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
@@ -236,6 +237,20 @@ export default function DashboardPage() {
       {/* SCROLLABLE PAGE CONTENT (Hanya isi halaman yang ikut scrolling)       */}
       {/* ===================================================================== */}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 sm:px-5 md:px-8 xl:px-10 py-3 pb-20 space-y-3.5">
+        <section className="flex items-center gap-3 border border-slate-200 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
+          <Image
+            src="/foto-kepala-desa.png"
+            alt="Foto Kepala Desa Bantarsari"
+            width={720}
+            height={765}
+            className="h-20 w-20 shrink-0 border border-slate-200 object-cover object-top sm:h-24 sm:w-24"
+          />
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-sky-800">Kepala Desa</p>
+            <h2 className="mt-1 text-sm font-extrabold text-slate-900 sm:text-base">{villageConfig.kepala_desa || 'Pemerintah Desa Bantarsari'}</h2>
+            <p className="mt-1 text-xs text-slate-600">{villageConfig.nama_desa} · Pelayanan administrasi kependudukan</p>
+          </div>
+        </section>
         {/* 1. DASHBOARD CARDS (SATU KOLOM, REAL-TIME DATABASE) */}
         <div>
           <div className="flex flex-col gap-1.5 mb-2 px-0.5 sm:flex-row sm:items-center sm:justify-between">

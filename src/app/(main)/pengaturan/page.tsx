@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { ShieldAlert, Save } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import type { VillageConfig } from '@/lib/types';
+import { UserManagement } from '@/components/UserManagement';
 
 const fields: Array<{ key: keyof VillageConfig; label: string; required?: boolean }> = [
   { key: 'nama_desa', label: 'Nama resmi desa', required: true },
@@ -46,7 +47,8 @@ export default function PengaturanPage() {
 
   return (
     <main className="h-full overflow-y-auto p-4 sm:p-6">
-      <section className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+      <div className="mx-auto max-w-5xl space-y-6">
+      <section className="border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
         <h1 className="text-xl font-extrabold text-slate-900">Identitas desa</h1>
         <p className="mt-1 text-sm text-slate-600">Perubahan disimpan ke database desa.</p>
         <form onSubmit={save} className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -69,10 +71,11 @@ export default function PengaturanPage() {
             </button>
           </div>
         </form>
-        <aside className="mt-6 rounded-xl border border-sky-100 bg-sky-50 p-4 text-sm leading-relaxed text-slate-700">
-          Akun petugas tidak dibuat dengan PIN di aplikasi. Setiap petugas perlu akun Supabase Auth tersendiri, lalu administrator menetapkan peran dan wilayah tugasnya.
-        </aside>
       </section>
+      <section className="border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+        <UserManagement />
+      </section>
+      </div>
     </main>
   );
 }

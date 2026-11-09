@@ -10,6 +10,7 @@ export type BloodType = 'A' | 'B' | 'AB' | 'O' | 'A+' | 'A-' | 'B+' | 'B-' | 'AB
 
 export interface Profile {
   id: string;
+  username: string;
   full_name: string;
   role: UserRole;
   assigned_dusun?: string | null; // e.g. 'Dusun I'

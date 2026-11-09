@@ -101,7 +101,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       const { data: profile, error: profileError } = await supabase
-        .from('profiles').select('id,full_name,role,assigned_dusun,assigned_rw,assigned_rt,phone,created_at')
+        .from('profiles').select('id,username,full_name,role,assigned_dusun,assigned_rw,assigned_rt,phone,created_at')
         .eq('id', user.id).eq('active', true).maybeSingle();
       if (profileError || !profile) {
         clearData();
@@ -304,10 +304,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { success: true };
   };
 
-  const importBulkData = async () => ({
-    success: false, familiesCount: 0, citizensCount: 0,
-    error: 'Impor massal dinonaktifkan sampai validasi, pratinjau, dan transaksi aman selesai dibuat.',
-  });
+  const importBulkData = async (inputFamilies: Family[], inputCitizens: Citizen[]) => {
+    if (!supabase) return { success: false, familiesCount: 0, citizensCount: 0, error: 'Koneksi Supabase belum dikonfigurasi.' };
+    if (currentProfile?.role !== 'admin') return { success: false, familiesCount: 0, citizensCount: 0, error: 'Akses admin diperlukan.' };
+    if (!inputFamilies.length || !inputCitizens.length) return { success: false, familiesCount: 0, citizensCount: 0, error: 'Tidak ada data untuk diimpor.' };
+
+    const familiesPayload = inputFamilies.map((family) => ({
+      id: family.id,
+      no_kk: family.no_kk,
+      kepala_keluarga: family.kepala_keluarga,
+      alamat: family.alamat,
+      no_rumah: family.no_rumah || '01',
+      dusun: family.dusun,
+      rw: family.rw,
+      rt: family.rt,
+      status_barcode: family.status_barcode ?? true,
+      status_update: family.status_update ?? true,
+      penerangan: family.penerangan || 'meteran',
+      fasilitas_mck: family.fasilitas_mck || 'sendiri',
+      bantuan_sosial: family.bantuan_sosial || 'none',
+    }));
+    const citizensPayload = inputCitizens.map((citizen) => ({
+      id: citizen.id,
+      family_id: citizen.family_id,
+      nik: citizen.nik,
+      nama_lengkap: citizen.nama_lengkap,
+      hubungan_keluarga: citizen.hubungan_keluarga,
+      jenis_kelamin: citizen.jenis_kelamin,
+      tempat_lahir: citizen.tempat_lahir,
+      tanggal_lahir: citizen.tanggal_lahir,
+      golongan_darah: citizen.golongan_darah || 'Tidak Tahu',
+      agama: citizen.agama || 'Islam',
+      pendidikan_terakhir: citizen.pendidikan_terakhir,
+      pekerjaan: citizen.pekerjaan,
+      status_perkawinan: citizen.status_perkawinan || 'Belum Kawin',
+      tanggal_perkawinan: citizen.tanggal_perkawinan || '-',
+      nama_ayah: citizen.nama_ayah || '-',
+      nama_ibu: citizen.nama_ibu || '-',
+      bpjs_kesehatan: citizen.bpjs_kesehatan || 'tidak',
+      disabilitas: citizen.disabilitas || 'tidak',
+      status_tki: citizen.status_tki ?? false,
+      akta_kelahiran: citizen.akta_kelahiran ?? false,
+      akta_nikah: citizen.akta_nikah ?? false,
+    }));
+
+    const { error } = await supabase.rpc('import_population_batch', {
+      p_families: familiesPayload,
+      p_citizens: citizensPayload,
+    });
+    if (error) return { success: false, familiesCount: 0, citizensCount: 0, error: 'Impor dibatalkan. Tidak ada data yang ditambahkan. Periksa duplikasi dan konfigurasi database.' };
+
+    await refreshFromSupabase();
+    return { success: true, familiesCount: inputFamilies.length, citizensCount: inputCitizens.length };
+  };
   const syncToSupabase = async () => {
     if (!supabase) return { success: false, message: 'Supabase belum dikonfigurasi.' };
     await refreshFromSupabase();
